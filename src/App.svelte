@@ -1,7 +1,5 @@
 <script>
-	import { onDestroy, onMount } from "svelte";
-	
-	import FCCTest from './FCCTest.svelte';
+  import { onDestroy, onMount } from "svelte";
 
   export let breakLength = 5;
   export let sessionLength = 25;
@@ -14,10 +12,10 @@
   let interval;
   let reset;
 
-//******************* 0n Mount
-onMount(() => {
-		showTime()
-	});
+  //******************* 0n Mount
+  onMount(() => {
+    showTime();
+  });
   //***************** Interval Utility
   function onInterval(callback, milliseconds) {
     interval = setInterval(callback, milliseconds);
@@ -25,27 +23,27 @@ onMount(() => {
     onDestroy(() => {
       clearInterval(interval);
     });
-	}
-	
-	//******************** convert display for single digit
-function	showTime(){
- seconds = seconds < 10 ? "0" + seconds : seconds;
-    minutes = minutes < 10 ? "0" + minutes : minutes;
-	}
+  }
 
-	//***************** Count down clock
-	function timer(){
-  shotClock = onInterval(() => {
-    timeLeft -= 1;
-    minutes = Math.floor(timeLeft / 60);
-    seconds = timeLeft - minutes * 60;
+  //******************** convert display for single digit
+  function showTime() {
     seconds = seconds < 10 ? "0" + seconds : seconds;
     minutes = minutes < 10 ? "0" + minutes : minutes;
-    if (timeLeft === 0) {
-      clearInterval(interval);
-    }
-  }, 1000);
-}
+  }
+
+  //***************** Count down clock
+  function timer() {
+    shotClock = onInterval(() => {
+      timeLeft -= 1;
+      minutes = Math.floor(timeLeft / 60);
+      seconds = timeLeft - minutes * 60;
+      seconds = seconds < 10 ? "0" + seconds : seconds;
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      if (timeLeft === 0) {
+        clearInterval(interval);
+      }
+    }, 1000);
+  }
   //***************** Break button functions
   function increaseBreakLength() {
     breakLength += 1;
@@ -61,28 +59,43 @@ function	showTime(){
     sessionLength -= 1;
   }
   //***************** Timer button functions
-// RESET
+  // RESET
   function timerReset() {
-		clearInterval(interval);
+    clearInterval(interval);
     breakLength = 5;
     sessionLength = 25;
-		timerType = "Session";
-		minutes = 25;
-		seconds = 0;
-		timeLeft = 0;
-		showTime();
-	}
-	//START
-	function startTimer(){
-		if (timeLeft === 0){
-timeLeft=sessionLength * 60;
-timer();
-		} else {
-	return 	
+    timerType = "Session";
+    minutes = 25;
+    seconds = 0;
+    timeLeft = 0;
+    showTime();
+  }
 
-	}
-	}
+  //toggle timerState for play pause functio
+  function toggleTimerState() {
+    console.log("inside timer");
+    timerState = !timerState;
+		console.log("toggle", timerState);
+		if (timerState){
+runTimer()
+		}else{
+			clearInterval(interval);
+			return;}
+
+  }
+  //START
+  function runTimer() {
+    
+      if (timeLeft === 0) {
+        timeLeft = sessionLength * 60;
+        timer();
+      } else {
+				timer();
+       
+      }
+  }
 </script>
+
 <style>
   .title {
     color: tomato;
@@ -179,28 +192,21 @@ timer();
     cursor: pointer;
   }
 
-	.display{
-		border: 2px solid black;
-		border-radius: 10px;
-		text-align: center;
-		margin: 10px;
-	}
+  .display {
+    border: 2px solid black;
+    border-radius: 10px;
+    text-align: center;
+    margin: 10px;
+  }
 
-.display  h1{
-	
-}
-	#time-left{
-		font-size: 1.5rem;
-		border: 2px solid black;
-		border-radius: 10px ;
-		padding: 10px 22px 10px 27px;
-		float: right;
-		}
-
+  #time-left {
+    font-size: 1.5rem;
+    border: 2px solid black;
+    border-radius: 10px;
+    padding: 10px 22px 10px 27px;
+    float: right;
+  }
 </style>
-
-
-<FCCTest />
 
 <h1 class="title">Pomodoro Clock</h1>
 
@@ -242,15 +248,15 @@ timer();
 
   <!-- Timer Section -->
   <section id="timer-section">
-	<div class="display">
-	
-    <div id="timer-label">
-      <h1>{timerType}</h1>
+    <div class="display">
+
+      <div id="timer-label">
+        <h1>{timerType}</h1>
+      </div>
+      <div id="time-left"> {minutes} : {seconds} </div>
     </div>
-    <div id="time-left"> {minutes} : {seconds} </div>
-</div>
     <div class="timer-buttons">
-      <button id="start_stop" on:click={startTimer}>⏯️</button>
+      <button id="start_stop" on:click={toggleTimerState}>⏯️</button>
       <button id="reset" on:click={timerReset}>🔄</button>
 
     </div>
