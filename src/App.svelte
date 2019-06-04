@@ -1,39 +1,49 @@
 <script>
-import { onDestroy } from "svelte";
+  import { onDestroy, onMount } from "svelte";
 
-  let breakLength = 5;
-  let sessionLength = 25;
-  let timerType = "Session";
-  let timeLeft=5;
-	let timerState = "start";
-	let myClock;
-	let minutes = 0;
-	let seconds = 0;
-	let interval;
+  export let breakLength = 5;
+  export let sessionLength = 1;
+  export let timerType = "Session";
+  let timeLeft = 0;
+  let timerState = false;
+  let shotClock = 0;
+  export let minutes = 0;
+  export let seconds = 0;
+  let interval;
+  let reset;
 
-	let reset;
-
-function onInterval(callback, milliseconds) {
-	 interval = setInterval(callback, milliseconds);
-
-	onDestroy(() => {
-		clearInterval(interval);
+//******************* 0n Mount
+onMount(() => {
+		showTime()
 	});
-}
+  //***************** Interval Utility
+  function onInterval(callback, milliseconds) {
+    interval = setInterval(callback, milliseconds);
+
+    onDestroy(() => {
+      clearInterval(interval);
+    });
+	}
+	
+	//******************** convert display for single digit
+function	showTime(){
+ seconds = seconds < 10 ? "0" + seconds : seconds;
+    minutes = minutes < 10 ? "0" + minutes : minutes;
+	}
 
 	//***************** Count down clock
-  myClock = onInterval(() => {
-		timeLeft -= 1
-		minutes = Math.floor(timeLeft / 60);
-		 seconds = timeLeft - (minutes * 60);
-		 seconds = seconds < 10 ? '0' + seconds : seconds;
-		minutes = minutes < 10 ? '0' + minutes : minutes;
-		if (timeLeft === 0){
-	clearInterval(interval);
-	}
-		}, 1000);
-
-
+	function timer(){
+  shotClock = onInterval(() => {
+    timeLeft -= 1;
+    minutes = Math.floor(timeLeft / 60);
+    seconds = timeLeft - minutes * 60;
+    seconds = seconds < 10 ? "0" + seconds : seconds;
+    minutes = minutes < 10 ? "0" + minutes : minutes;
+    if (timeLeft === 0) {
+      clearInterval(interval);
+    }
+  }, 1000);
+}
   //***************** Break button functions
   function increaseBreakLength() {
     breakLength += 1;
@@ -49,25 +59,28 @@ function onInterval(callback, milliseconds) {
     sessionLength -= 1;
   }
   //***************** Timer button functions
-
+// RESET
   function timerReset() {
+		clearInterval(interval);
     breakLength = 5;
-    sessionLength = 25;
-    stage = "Session";
-    timer = 0;
+    sessionLength = 1;
+		timerType = "Session";
+		minutes = 0;
+		seconds = 0;
+		timeLeft = 0;
+		showTime();
 	}
-	
-	 function clockify(){
-     minutes = Math.floor({timeLeft} / 60);
-     seconds = {timeLeft} - (minutes * 60);
-    
-    return; 
-	};
-	
-	
+	//START
+	function startTimer(){
+		if (timeLeft === 0){
+timeLeft=sessionLength * 60;
+timer();
+		} else {
+	return 	
 
+	}
+	}
 </script>
-
 <style>
   .title {
     color: tomato;
@@ -208,14 +221,11 @@ function onInterval(callback, milliseconds) {
     <div id="timer-label">
       <h1>{timerType}</h1>
     </div>
-    <div id="time-left" >
-		
-		{minutes} : {seconds} 
-		</div>
+    <div id="time-left"> {minutes} : {seconds} </div>
 
     <div class="timer-buttons">
-      <button id="start_stop">{timerState}</button>
-      <button id="reset" on:click={timerReset}>reset</button>
+      <button id="start_stop" on:click={startTimer}>⏯️</button>
+      <button id="reset" on:click={timerReset}>🔄</button>
 
     </div>
 
