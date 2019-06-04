@@ -3,11 +3,11 @@ import App from "./App.svelte";
 const app = new App({
 	target: document.querySelector('main'),
 	props:{
-		breakLength: 5,
-sessionLength: 25,
+		breakLength: 0.1,
+sessionLength: 0.1,
 timerType: "Session",
-minutes: 25,
-seconds: 0
+minutes: 0,
+seconds: 6
 
 
 	}

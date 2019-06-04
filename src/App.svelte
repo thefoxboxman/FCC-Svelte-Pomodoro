@@ -1,8 +1,8 @@
 <script>
   import { onDestroy, onMount } from "svelte";
 
-  export let breakLength = 5;
-  export let sessionLength = 25;
+  export let breakLength = 0.1;
+  export let sessionLength = 0;
   export let timerType = "Session";
   let timeLeft = 0;
   let timerState = false;
@@ -33,15 +33,29 @@
 
   //***************** Count down clock
   function timer() {
+		console.log("in start timer")
     shotClock = onInterval(() => {
       timeLeft -= 1;
       minutes = Math.floor(timeLeft / 60);
       seconds = timeLeft - minutes * 60;
       seconds = seconds < 10 ? "0" + seconds : seconds;
       minutes = minutes < 10 ? "0" + minutes : minutes;
-      if (timeLeft === 0) {
+      if ((timeLeft === 0) && (timerType==="Session") ) {
+				console.log("ALARM end of session");
+				timerType = "Break";
+				console.log("timerType ", timerType)
         clearInterval(interval);
-      }
+				runBreakTimer();
+				} else if ((timeLeft === 0) && (timerType==="Break") ){
+				 console.log("END OF BREAK GET BAKC TO WORK");
+          clearInterval(interval);
+          timerReset();	
+    
+				}
+				}
+         
+        
+      
     }, 1000);
   }
   //***************** Break button functions
@@ -70,29 +84,45 @@
     timeLeft = 0;
     showTime();
   }
+  //RUN TIMER
+  function runSeshTimer() {
+		console.log("in runsheh")
+    if (timeLeft === 0) {
+      timeLeft = sessionLength * 60;
+      timer();
+    } else {
+      timer();
+    }
+	}
+	
+	//RUN BREAK TIMER
 
-  //toggle timerState for play pause functio
-  function toggleTimerState() {
-    console.log("inside timer");
-    timerState = !timerState;
-		console.log("toggle", timerState);
-		if (timerState){
-runTimer()
-		}else{
-			clearInterval(interval);
-			return;}
-
+  function runBreakTimer() {
+			timerType = "Break";
+    if (timeLeft === 0) {
+			timeLeft = breakLength * 60;
+			
+      timer();
+    } else {
+	
+      timer();
+    }
   }
-  //START
-  function runTimer() {
+  //PLAY &  PAUSE toggle timerState
+  function toggleTimerState() {
+		timerState = !timerState;
+		console.log("in Toggle")
+    if (timerState) {
+      runSeshTimer();
     
-      if (timeLeft === 0) {
-        timeLeft = sessionLength * 60;
-        timer();
-      } else {
-				timer();
-       
-      }
+    }
+    // if (timeLeft === 0) {
+    //   console.log("ALARM");
+    //   clearInterval(interval);
+    //   timeLeft = breakLength * 60;
+    //   timerType = "Break";
+    //   runTimer();
+    // }
   }
 </script>
 
