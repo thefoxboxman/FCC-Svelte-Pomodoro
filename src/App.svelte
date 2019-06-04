@@ -1,8 +1,10 @@
 <script>
-  import { onDestroy, onMount } from "svelte";
+	import { onDestroy, onMount } from "svelte";
+	
+	import FCCTest from './FCCTest.svelte';
 
   export let breakLength = 5;
-  export let sessionLength = 1;
+  export let sessionLength = 25;
   export let timerType = "Session";
   let timeLeft = 0;
   let timerState = false;
@@ -63,9 +65,9 @@ function	showTime(){
   function timerReset() {
 		clearInterval(interval);
     breakLength = 5;
-    sessionLength = 1;
+    sessionLength = 25;
 		timerType = "Session";
-		minutes = 0;
+		minutes = 25;
 		seconds = 0;
 		timeLeft = 0;
 		showTime();
@@ -176,7 +178,29 @@ timer();
     max-width: 4rem;
     cursor: pointer;
   }
+
+	.display{
+		border: 2px solid black;
+		border-radius: 10px;
+		text-align: center;
+		margin: 10px;
+	}
+
+.display  h1{
+	
+}
+	#time-left{
+		font-size: 1.5rem;
+		border: 2px solid black;
+		border-radius: 10px ;
+		padding: 10px 22px 10px 27px;
+		float: right;
+		}
+
 </style>
+
+
+<FCCTest />
 
 <h1 class="title">Pomodoro Clock</h1>
 
@@ -218,11 +242,13 @@ timer();
 
   <!-- Timer Section -->
   <section id="timer-section">
+	<div class="display">
+	
     <div id="timer-label">
       <h1>{timerType}</h1>
     </div>
     <div id="time-left"> {minutes} : {seconds} </div>
-
+</div>
     <div class="timer-buttons">
       <button id="start_stop" on:click={startTimer}>⏯️</button>
       <button id="reset" on:click={timerReset}>🔄</button>
