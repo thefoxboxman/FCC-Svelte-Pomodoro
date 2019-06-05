@@ -1,10 +1,10 @@
 <script>
   import { onDestroy, onMount } from "svelte";
 
-  export let breakLength = 0.1;
+  export let breakLength = 0;
   export let sessionLength = 0;
   export let timerType = "Session";
-  let timeLeft = 0;
+  export let timeLeft = 0;
   let timerState = false;
   let shotClock = 0;
   export let minutes = 0;
@@ -14,6 +14,7 @@
 
   //******************* 0n Mount
   onMount(() => {
+    timeLeft = sessionLength * 60;
     showTime();
   });
   //***************** Interval Utility
@@ -25,52 +26,69 @@
     });
   }
 
-  //******************** convert display for single digit
+  //******************** convert display for single digit into min and secs
   function showTime() {
+    minutes = Math.floor(timeLeft / 60);
+    seconds = timeLeft - minutes * 60;
     seconds = seconds < 10 ? "0" + seconds : seconds;
     minutes = minutes < 10 ? "0" + minutes : minutes;
   }
 
   //***************** Count down clock
   function timer() {
-		console.log("in start timer")
+    console.log("in start timer");
     shotClock = onInterval(() => {
       timeLeft -= 1;
-      minutes = Math.floor(timeLeft / 60);
-      seconds = timeLeft - minutes * 60;
-      seconds = seconds < 10 ? "0" + seconds : seconds;
-      minutes = minutes < 10 ? "0" + minutes : minutes;
-      if ((timeLeft === 0) && (timerType==="Session") ) {
-				console.log("ALARM end of session");
-				timerType = "Break";
-				console.log("timerType ", timerType)
+      displayMinSec();
+
+      if (timeLeft < 0 && timerType === "Session") {
+        console.log("ALARM end of session");
+        myAlarm();
+        timerType = "Break";
+        console.log("timerType ", timerType);
         clearInterval(interval);
-				runBreakTimer();
-				} else if ((timeLeft === 0) && (timerType==="Break") ){
-				 console.log("END OF BREAK GET BAKC TO WORK");
-          clearInterval(interval);
-          timerReset();	
-    
-				}
-				}
-         
-        
-      
+        runBreakTimer();
+      } else if (timeLeft === 0 && timerType === "Break") {
+        console.log("END OF BREAK GET BAKC TO WORK");
+        play;
+        clearInterval(interval);
+        timerReset();
+      }
     }, 1000);
   }
   //***************** Break button functions
   function increaseBreakLength() {
-    breakLength += 1;
+    if (breakLength >= 0 && breakLength <= 59) {
+      breakLength += 1;
+    } else {
+      return;
+    }
   }
   function decreaseBreakLength() {
-    breakLength -= 1;
+    if (breakLength > 1 && breakLength <= 60) {
+      breakLength -= 1;
+    } else {
+      return;
+    }
   }
   //***************** Session button functions
   function increaseSessionLength() {
-    sessionLength += 1;
+    if (sessionLength >= 0 && sessionLength <= 59) {
+      sessionLength += 1;
+      timeLeft = sessionLength * 60;
+      showTime();
+    } else {
+      return;
+    }
   }
   function decreaseSessionLength() {
-    sessionLength -= 1;
+    if (sessionLength > 1 && sessionLength <= 60) {
+      sessionLength -= 1;
+      timeLeft = sessionLength * 60;
+      showTime();
+    } else {
+      return;
+    }
   }
   //***************** Timer button functions
   // RESET
@@ -79,51 +97,58 @@
     breakLength = 5;
     sessionLength = 25;
     timerType = "Session";
-    minutes = 25;
+    minutes = 0;
     seconds = 0;
-    timeLeft = 0;
+    timeLeft = sessionLength * 60;
     showTime();
   }
-  //RUN TIMER
+  //RUN  session TIMER
   function runSeshTimer() {
-		console.log("in runsheh")
+    console.log("in runsheh");
     if (timeLeft === 0) {
       timeLeft = sessionLength * 60;
       timer();
     } else {
       timer();
     }
-	}
-	
-	//RUN BREAK TIMER
+  }
+
+  //RUN BREAK TIMER
 
   function runBreakTimer() {
-			timerType = "Break";
+    timerType = "Break";
     if (timeLeft === 0) {
-			timeLeft = breakLength * 60;
-			
+      timeLeft = breakLength * 60;
+
       timer();
     } else {
-	
+      timeLeft = breakLength * 60;
       timer();
     }
   }
   //PLAY &  PAUSE toggle timerState
   function toggleTimerState() {
-		timerState = !timerState;
-		console.log("in Toggle")
+    timerState = !timerState;
+    console.log("in Toggle");
     if (timerState) {
       runSeshTimer();
-    
     }
-    // if (timeLeft === 0) {
-    //   console.log("ALARM");
-    //   clearInterval(interval);
-    //   timeLeft = breakLength * 60;
-    //   timerType = "Break";
-    //   runTimer();
-    // }
   }
+  //********** dispaly minutes and seconds
+  function displayMinSec() {
+    minutes = Math.floor(timeLeft / 60);
+    seconds = timeLeft - minutes * 60;
+    seconds = seconds < 10 ? "0" + seconds : seconds;
+    minutes = minutes < 10 ? "0" + minutes : minutes;
+  }
+
+  //************ Alarm
+  const alarm = new Audio();
+  function myAlarm() {
+    alarm.src = "https://goo.gl/65cBl1";
+    alarm.play();
+  }
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 </script>
 
 <style>
@@ -169,7 +194,7 @@
     cursor: pointer;
   }
 
-  .break-length-display {
+  #break-length {
     color: black;
     font-size: 2rem;
     border: 2px black solid;
@@ -208,7 +233,7 @@
     cursor: pointer;
   }
 
-  .session-length-display {
+  #session-length {
     color: black;
     font-size: 2rem;
     border: 2px black solid;
@@ -249,7 +274,7 @@
       <div class="break-buttons">
         <button id="break-increment" on:click={increaseBreakLength}>➕</button>
 
-        <h2 class="break-length-display">{breakLength} </h2>
+        <h2 id="break-length">{breakLength} </h2>
 
         <button id="break-decrement" on:click={decreaseBreakLength}>➖</button>
       </div>
@@ -267,7 +292,7 @@
         ➕
       </button>
 
-      <h2 class="session-length-display">{sessionLength} </h2>
+      <h2 id="session-length">{sessionLength} </h2>
 
       <button id="session-decrement" on:click={decreaseSessionLength}>
         ➖
@@ -294,4 +319,8 @@
   </section>
 
 </div>
-<!-- grid-wrapper -->
+<!-- Audio tag -->
+<audio id="beep" preload="auto">
+  src="https://goo.gl/65cBl1" type="audio/mpeg" Your browser does not support
+  the audio element.
+</audio>
