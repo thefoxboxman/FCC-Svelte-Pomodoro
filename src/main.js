@@ -6,7 +6,9 @@ const app = new App({
 		breakLength: 5,
 		sessionLength: 25,
 		timerType: "Session",
-		timeLeft: 0
+		timerState: false,
+		timeLeft: 0,
+		counter: 0
 	}
 });
 
